@@ -39,6 +39,8 @@ chroma = ["chromadb>=0.4.0"]
 pinecone = ["pinecone-client>=2.2.0"]
 milvus = ["pymilvus>=2.3.0"]
 weaviate = ["weaviate-client>=3.0.0"]
+postgres = ["psycopg2-binary>=2.9.0"]
+pgvector = ["psycopg2-binary>=2.9.0"]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
@@ -48,7 +50,7 @@ dev = [
     "maturin>=1.0.0",
 ]
 all = [
-    "pyhound[qdrant,chroma,pinecone,milvus,weaviate,dev]",
+    "pyhound[qdrant,chroma,pinecone,milvus,weaviate,postgres,dev]",
 ]
 
 [project.urls]

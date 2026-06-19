@@ -204,6 +204,40 @@ hound = Hound(
 )
 ```
 
+### PostgreSQL (pgvector)
+
+```python
+hound = Hound(
+    db="postgres",
+    endpoint="localhost:5432",
+    index_name="embeddings",
+    username="postgres",
+    password="your_password",
+    database="your_db"
+)
+```
+
+**Prerequisites:**
+```bash
+# Install pgvector extension
+psql -U postgres -d your_db -c "CREATE EXTENSION IF NOT EXISTS vector"
+
+# Install Python dependencies
+pip install pyhound[postgres]
+```
+
+**Example Table Structure:**
+```sql
+CREATE TABLE embeddings (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    embedding vector(1536),
+    CONSTRAINT embedding_dimension_check CHECK (array_length(embedding, 1) = 1536)
+);
+
+CREATE INDEX ON embeddings USING ivfflat (embedding vector_cosine_ops);
+```
+
 ## API Reference
 
 ### Hound

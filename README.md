@@ -178,6 +178,7 @@ if drift.significant:
 - ✅ **Pinecone** — Full support
 - ✅ **Milvus** — Full support
 - ✅ **Weaviate** — Full support
+- ✅ **PostgreSQL (pgvector)** — Full support
 - ✅ **Custom** — Query any database
 
 Add more databases by implementing the `VectorDB` protocol.

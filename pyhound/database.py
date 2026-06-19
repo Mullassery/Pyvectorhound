@@ -324,6 +324,139 @@ class MilvusAdapter(VectorDB):
         return self.client.get_collection_stats(self.collection)["row_count"]
 
 
+class PostgresVectorAdapter(VectorDB):
+    """Adapter for PostgreSQL with pgvector extension."""
+
+    def __init__(
+        self,
+        endpoint: str,
+        index_name: str,
+        username: str = "postgres",
+        password: str = "password",
+        database: str = "postgres",
+        **kwargs: Any,
+    ):
+        """
+        Initialize PostgreSQL pgvector adapter.
+
+        Args:
+            endpoint: PostgreSQL endpoint (host:port)
+            index_name: Table name containing embeddings
+            username: Database username
+            password: Database password
+            database: Database name
+        """
+        self.endpoint = endpoint
+        self.index_name = index_name
+        self.username = username
+        self.password = password
+        self.database = database
+        self.connection = None
+
+    def connect(self) -> None:
+        """Connect to PostgreSQL."""
+        try:
+            import psycopg2
+
+            host, port = self.endpoint.split(":")
+            self.connection = psycopg2.connect(
+                host=host,
+                port=int(port),
+                user=self.username,
+                password=self.password,
+                database=self.database,
+            )
+        except ImportError:
+            raise ImportError(
+                "psycopg2 not installed. Run: pip install pyhound[postgres]"
+            )
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to PostgreSQL: {e}")
+
+    def search(
+        self, query_embedding: np.ndarray, top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """Search in PostgreSQL using pgvector similarity."""
+        if self.connection is None:
+            self.connect()
+
+        cursor = self.connection.cursor()
+
+        try:
+            # pgvector uses <-> operator for cosine distance
+            query_str = f"""
+                SELECT id, embedding, 1 - (embedding <-> %s) AS similarity
+                FROM {self.index_name}
+                ORDER BY embedding <-> %s
+                LIMIT %s
+            """
+
+            embedding_list = query_embedding.tolist()
+            cursor.execute(
+                query_str,
+                (embedding_list, embedding_list, top_k),
+            )
+
+            results = []
+            for row in cursor.fetchall():
+                doc_id, embedding, similarity = row
+                results.append(
+                    {
+                        "id": str(doc_id),
+                        "score": similarity,
+                        "embedding": query_embedding,
+                    }
+                )
+
+            return results
+
+        finally:
+            cursor.close()
+
+    def get_embeddings(self, doc_ids: List[str]) -> Dict[str, np.ndarray]:
+        """Get embeddings for documents."""
+        if self.connection is None:
+            self.connect()
+
+        cursor = self.connection.cursor()
+
+        try:
+            placeholders = ",".join(["%s"] * len(doc_ids))
+            query_str = f"SELECT id, embedding FROM {self.index_name} WHERE id IN ({placeholders})"
+
+            cursor.execute(query_str, doc_ids)
+
+            embeddings = {}
+            for row in cursor.fetchall():
+                doc_id, embedding = row
+                embeddings[str(doc_id)] = np.array(embedding, dtype=np.float32)
+
+            return embeddings
+
+        finally:
+            cursor.close()
+
+    def corpus_size(self) -> int:
+        """Get corpus size."""
+        if self.connection is None:
+            self.connect()
+
+        cursor = self.connection.cursor()
+
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM {self.index_name}")
+            count = cursor.fetchone()[0]
+            return count
+
+        finally:
+            cursor.close()
+
+    def __del__(self):
+        """Close connection on cleanup."""
+        if self.connection:
+            self.connection.close()
+
+
 class WeaviateAdapter(VectorDB):
     """Adapter for Weaviate vector database."""
 
@@ -399,7 +532,7 @@ class WeaviateAdapter(VectorDB):
         return result["data"]["Aggregate"][self.index_name][0]["meta"]["count"]
 
 
-def get_adapter(db: str, endpoint: str, index_name: str, **kwargs) -> VectorDB:
+def get_adapter(db: str, endpoint: str, index_name: str, **kwargs: Any) -> VectorDB:
     """Factory function to create appropriate adapter."""
     db = db.lower()
 
@@ -409,11 +542,14 @@ def get_adapter(db: str, endpoint: str, index_name: str, **kwargs) -> VectorDB:
         "pinecone": PineconeAdapter,
         "milvus": MilvusAdapter,
         "weaviate": WeaviateAdapter,
+        "postgres": PostgresVectorAdapter,
+        "postgresql": PostgresVectorAdapter,
+        "pgvector": PostgresVectorAdapter,
     }
 
     if db not in adapters:
         raise ValueError(
-            f"Unsupported database: {db}. Supported: {list(adapters.keys())}"
+            f"Unsupported database: {db}. Supported: {list(set(adapters.values()))}"
         )
 
     return adapters[db](endpoint=endpoint, index_name=index_name, **kwargs)
