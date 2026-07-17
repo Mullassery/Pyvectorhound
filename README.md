@@ -222,8 +222,8 @@ A: Yes. It's designed for production monitoring. Overhead is minimal (<1ms per o
 **Q: Does PyVectorhound require Rust knowledge?**  
 A: No. PyVectorhound is pure Python to use. Rust is only for building from source.
 
-**Q: Should I use PyVectorhound instead of Phoenix/Arize?**  
-A: Yes. PyVectorhound replaces them by providing diagnostics (why it failed, how to fix it) instead of just monitoring (that it failed). Phoenix/Arize are focused on infrastructure monitoring; PyVectorhound is focused on retrieval quality and optimization.
+**Q: How does PyVectorhound compare to other retrieval diagnostics tools?**  
+A: PyVectorhound provides root cause analysis and ranked recommendations, not just monitoring. It explains why retrieval failed and how to fix it, with component isolation and cost-aware suggestions.
 
 ## Supported Vector Databases
 
@@ -259,20 +259,18 @@ Python Wrapper (pyvectorhound)
 - Embeddable everywhere (C FFI, PyO3)
 - Single binary, zero dependencies
 
-## Why PyVectorhound Over Phoenix/Arize?
+## What Sets PyVectorhound Apart?
 
-PyVectorhound replaces observability platforms by going deeper: it doesn't just tell you something is broken, it explains why and how to fix it.
+PyVectorhound goes beyond monitoring: it diagnoses retrieval issues and recommends fixes.
 
-| Question | Phoenix/Arize | PyVectorhound |
-|----------|---------------|---------|
-| Is retrieval broken? | Yes | Yes (+ metrics) |
-| Why is it broken? | No | Yes (root cause) |
-| Which component failed? | No | Yes (component isolation) |
-| How do I fix it? | No | Yes (ranked recommendations with ROI) |
-| Did my fix work? | No | Yes (before/after comparison) |
-| What model should I use? | No | Yes (comparison with cost analysis) |
-
-**Bottom line:** Phoenix/Arize tell you something's wrong. PyVectorhound tells you what to do about it.
+| Capability | PyVectorhound |
+|-----------|---|
+| Root cause analysis | ✅ |
+| Component isolation | ✅ |
+| Ranked recommendations | ✅ |
+| Cost-aware suggestions | ✅ |
+| Before/after comparison | ✅ |
+| Model comparison | ✅ |
 
 ## Speed Comparison
 
