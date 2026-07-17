@@ -445,10 +445,9 @@ Measured on single machine (8 cores, 16GB RAM):
 - 1536-dim OpenAI embeddings
 - Typical RAG corpus sizes (100k-1M documents)
 
-**vs Competitors:**
+**vs Open Source Competitors:**
 - Phoenix: 200ms diagnosis (4.4x slower)
 - Evidently: 150ms diagnosis (3.3x slower)
-- Arize: 250ms diagnosis (5.5x slower)
 
 **Why PyVectorhound is faster:**
 - Rust core, not Python (no GIL)
