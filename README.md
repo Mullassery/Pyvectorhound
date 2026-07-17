@@ -1,8 +1,9 @@
 # PyVectorhound
 
-[![PyPI version](https://img.shields.io/badge/PyPI-pyvectorhound%200.1.0-blue.svg)](https://pypi.org/project/pyvectorhound/)
+[![PyPI version](https://img.shields.io/badge/PyPI-pyvectorhound%201.0.0-blue.svg)](https://pypi.org/project/pyvectorhound/)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Status: v1.0 Released](https://img.shields.io/badge/Status-v1.0%20Released-brightgreen)
 [![GitHub stars](https://img.shields.io/github/stars/Mullassery/pyvectorhound?style=social)](https://github.com/Mullassery/pyvectorhound)
 
 **Hunt down retrieval problems. Fix them fast.**
